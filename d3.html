@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Word Cloud with D3.js</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #word-tree {
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        a {
+            display: inline-block;
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+
+        /* Add some basic styles for the word cloud */
+        .word {
+            font-family: "Arial", sans-serif;
+            cursor: pointer;
+            fill: #212529; /* Word color */
+            transition: font-size 0.3s ease; /* Add transition for smooth size change */
+        }
+
+        .word:hover {
+            font-size: 1.5em; /* Increase font size on hover (adjust as needed) */
+        }
+
+        .link {
+            fill: none;
+            stroke: #adb5bd;
+            stroke-width: 1;
+        }
+
+        .node {
+            transition: fill 0.2s ease;
+        }
+
+        .label {
+            font-size: 12px;
+            cursor: pointer;
+            transition: fill 0.2s ease, font-size 0.2s ease;
+        }
+
+        .label:hover {
+            font-size: 14px;
+        }
+
+        .selected {
+            stroke: #dc3545;
+            stroke-width: 2;
+        }
+    </style>
+</head>
+<body>
+
+<div id="word-tree"></div>
+
+<!--<svg id="word-tree" width="5000" height="4000" style="border: 1px solid"></svg>-->
+
+<svg id="wordCloud" width="5000" height="4000" style="border: 1px solid"></svg>
+
+<script>
+        // Sample array of sentences
+        var lemmatizedText = {{ lemma | tojson }};
+
+        //var line = {{ lines | tojson }};
+
+        var randomIndex = Math.floor(Math.random() * lemmatizedText.length);
+
+        const sentences = [lemmatizedText[randomIndex]];
+
+
+        // Function to generate word cloud
+        function generateWordCloud(words) {
+            const wordCountMap = {};
+
+            // Count occurrences of each word
+            words.forEach(sentence => {
+                const wordsInSentence = sentence.toLowerCase().split(/[^\w']+/);
+                wordsInSentence.forEach(word => {
+                    if (word !== '') {
+                        if (wordCountMap[word]) {
+                            wordCountMap[word]++;
+                        } else {
+                            wordCountMap[word] = 1;
+                        }
+                    }
+                });
+            });
+
+            const wordArray = Object.keys(wordCountMap).map(word => ({
+                text: word,
+                size: wordCountMap[word] * 17 // Adjust the size as needed
+            }));
+
+            const svg = document.getElementById("wordCloud");
+            const width = +svg.getAttribute("width");
+            const height = +svg.getAttribute("height");
+
+            const centerX = width / 2+30;
+            const centerY = height / 2;
+
+            const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            group.setAttribute("transform", `translate(${centerX},${centerY})`);
+
+            const placedWords = [];
+
+            wordArray.forEach(wordObj => {
+                let x, y, angle, attempts = 0;
+                const maxAttempts = 100;
+
+                do {
+                    const radius = Math.sqrt(Math.random()) * (Math.min(width, height) / 2); // Random radius from center
+                    angle = Math.random() * Math.PI * 2; // Random angle
+
+                    x = radius * Math.cos(angle);
+                    y = radius * Math.sin(angle);
+
+                    // Adjust position if collides with placed words
+                    let collision = false;
+                    for (const placedWord of placedWords) {
+                        const dx = x - placedWord.x;
+                        const dy = y - placedWord.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 30) { // Reduced minimum distance between words
+                            collision = true;
+                            break;
+                        }
+                    }
+
+                    if (!collision) {
+                        break;
+                    }
+
+                    attempts++;
+                } while (attempts < maxAttempts);
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("class", "word");
+                text.setAttribute("text-anchor", "middle");
+                text.setAttribute("transform", `translate(${x},${y})rotate(${angle * 180 / Math.PI})`);
+                text.setAttribute("font-size", `${wordObj.size}px`);
+                text.textContent = wordObj.text;
+
+                text.addEventListener("click", () => console.log(`${wordObj.text} clicked!`)); // Add click event (can be customized)
+
+                text.addEventListener("mouseover", () => {
+                    text.setAttribute("font-size", `${wordObj.size + 4}px`);
+
+                });
+
+                text.addEventListener("mouseout", () => {
+                    text.setAttribute("font-size", `${wordObj.size}px`);
+
+                });
+
+                text.x = x;
+                text.y = y;
+
+                placedWords.push({ x, y });
+                group.appendChild(text);
+            });
+
+            svg.appendChild(group);
+        }
+
+        // Function to show count dynamically
+
+
+        // Generate the word cloud using the sentences array
+        generateWordCloud(sentences);
+
+    </script>
+
+</body>
+
+</html>

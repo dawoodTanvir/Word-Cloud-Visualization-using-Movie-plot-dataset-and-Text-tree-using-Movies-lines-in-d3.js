@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualization with Control Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        #container {
+            display: flex;
+            flex-direction: column;
+            /* Added to make navigation appear on top */
+        }
+        
+        #navigation-panel {
+            background-color: #3498db;
+            color: #ecf0f1;
+            padding: 10px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        #visualization-container {
+            flex: 1;
+            height: 100vh;
+            overflow: auto;
+        }
+        
+        #control-panel {
+            width: 20%;
+            height: 100vh;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: width 0.3s;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        #control-panel-heading {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .option-group {
+            margin-bottom: 20px;
+        }
+        
+        .option-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: color 0.3s;
+            color: #ecf0f1;
+        }
+        
+        .sub-options {
+            display: none;
+            margin-left: 15px;
+        }
+        
+        .sub-options.active {
+            display: block;
+        }
+        
+        .sub-options select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: none;
+            background-color: #34495e;
+            color: #ecf0f1;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .sub-options label {
+            margin-bottom: 5px;
+            color: #bdc3c7;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="navigation-panel">
+        Exploring Textual Data through Interactive Visualizations
+    </div>
+
+    <div id="container">
+        <div id="visualization-container">
+            <!-- Your visualization content goes here -->
+            <!-- Placeholder: Replace with actual Word Tree or Word Cloud rendering code based on selected option -->
+            <div id="visualization-content">
+                Placeholder for Word Tree or Word Cloud
+            </div>
+        </div>
+
+        <div id="control-panel">
+            <div id="control-panel-heading">Control Panel</div>
+
+            <div class="option-group" id="appearance-group">
+                <label onclick="toggleOptions('appearance')">Appearance</label>
+                <div class="sub-options" id="appearance-options">
+                    <label><input type="checkbox"> Increase Node Size</label>
+                    <label><input type="checkbox"> Increase Edge Thickness</label>
+                </div>
+            </div>
+
+            <div class="option-group" id="layout-group">
+                <label onclick="toggleOptions('layout')">Layout</label>
+                <div class="sub-options" id="layout-options">
+                    <label><input type="checkbox" id="word-tree-option" onchange="toggleLayout()"> Word Tree</label>
+                    <label><input type="checkbox" id="word-cloud-option" onchange="toggleLayout()"> Word Cloud</label>
+                </div>
+            </div>
+
+            <div class="option-group" id="genres-group">
+                <label onclick="toggleOptions('movie-genres')">Movie Genres</label>
+                <div class="sub-options" id="movie-genres-options">
+                    <label>Select Genre:</label>
+                    <select>
+                        <option value="violence">Violence</option>
+                        <option value="comedy">Comedy</option>
+                        <option value="cult">Cult</option>
+                        <option value="murder">Murder</option>
+                        <option value="mystery">Mystery</option>
+                    </select>
+                    <label>Select 5 Movies:</label>
+                    <!-- Populate this dropdown dynamically based on the selected genre -->
+                    <select>
+                        <option value="movie1">Movie 1</option>
+                        <option value="movie2">Movie 2</option>
+                        <option value="movie3">Movie 3</option>
+                        <option value="movie4">Movie 4</option>
+                        <option value="movie5">Movie 5</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleOptions(group) {
+            const options = d3.select(`#${group}-options`);
+            options.classed('active', !options.classed('active'));
+            const groupLabel = d3.select(`#${group}-group label`);
+            groupLabel.style('color', options.classed('active') ? '#ecf0f1' : '#ecf0f1');
+        }
+
+        function toggleLayout() {
+            const wordTreeOption = document.getElementById('word-tree-option');
+            const wordCloudOption = document.getElementById('word-cloud-option');
+            // Placeholder: Replace with actual rendering logic based on selected option
+            if (wordTreeOption.checked) {
+                document.getElementById('visualization-content').innerText = 'Rendering Word Tree...';
+            } else if (wordCloudOption.checked) {
+                document.getElementById('visualization-content').innerText = 'Rendering Word Cloud...';
+            }
+        }
+    </script>
+
+</body>
+
+</html>
